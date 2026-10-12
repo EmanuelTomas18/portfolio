@@ -24,7 +24,7 @@ const projects = await Promise.all(entries.map(async (p) => ({ ...p, Content: (a
         projects.map(({ data, Content }) => (
           <li class="card">
             <div class="meta">
-              <span>{data.company}</span>
+              <span>{data.company}</span>{' '}
               <span class="year">{data.year}</span>
             </div>
             <h3>{data.title}</h3>

@@ -17,7 +17,7 @@ const [first, ...rest] = site.name.split(' ');
     <div class="intro">
       <Avatar size={84} />
       <h1>
-        <span>{first} {rest.slice(0, -1).join(' ')}</span>
+        <span>{first} {rest.slice(0, -1).join(' ')}</span>{' '}
         <span>{rest.at(-1)}</span>
       </h1>
       <p class="role">{t('hero.role')}</p>
@@ -47,7 +47,7 @@ const [first, ...rest] = site.name.split(' ');
             stroke="currentColor"
             stroke-width="1.8"></path><circle cx="12" cy="10" r="2.3" fill="currentColor"></circle></svg
         >
-        <span>{site.location[lang]}.</span>
+        <span>{site.location[lang]}.</span>{' '}
         <span>{t('hero.relocate')}.</span>
       </p>
     </div>

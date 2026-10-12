@@ -25,6 +25,7 @@ const t = useTranslations(lang);
               <h3>{job.role[lang]}</h3>
               <p class="company">
                 {job.company}
+                {job.note && ' '}
                 {job.note && <span class="note">{job.note[lang]}</span>}
               </p>
               <ul class="highlights">
