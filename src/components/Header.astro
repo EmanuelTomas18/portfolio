@@ -1,0 +1,246 @@
+---
+import { site } from '../data/site';
+import { homePath, useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const links = [
+  { href: '#about', label: t('nav.about') },
+  { href: '#experience', label: t('nav.experience') },
+  { href: '#projects', label: t('nav.projects') },
+  { href: '#skills', label: t('nav.skills') },
+  { href: '#contact', label: t('nav.contact') },
+];
+---
+
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="brand" href={homePath[lang]} aria-label={site.name}>
+      <span class="brand-prompt" aria-hidden="true">&gt;</span>
+      <span class="brand-name">{site.shortName.toLowerCase().replace(' ', '.')}</span>
+      <span class="brand-cursor" aria-hidden="true">_</span>
+    </a>
+
+    <nav class="nav" aria-label={t('nav.menu')}>
+      <ul id="nav-links" class="nav-links">
+        {
+          links.map((l) => (
+            <li>
+              <a href={l.href}>{l.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="actions">
+      <div class="lang" role="group" aria-label="Idioma / Language">
+        <a href={homePath.es} hreflang="es" lang="es" aria-current={lang === 'es' ? 'true' : undefined}>ES</a>
+        <a href={homePath.en} hreflang="en" lang="en" aria-current={lang === 'en' ? 'true' : undefined}>EN</a>
+      </div>
+      <a class="btn btn-primary btn-sm cv" href={site.cv[lang]} download>CV</a>
+      <button
+        class="menu-btn"
+        type="button"
+        aria-expanded="false"
+        aria-controls="nav-links"
+        aria-label={t('nav.menu')}
+      >
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<script>
+  const header = document.querySelector<HTMLElement>('.site-header');
+  const btn = header?.querySelector<HTMLButtonElement>('.menu-btn');
+  const list = header?.querySelector<HTMLElement>('.nav-links');
+
+  const close = () => {
+    btn?.setAttribute('aria-expanded', 'false');
+    header?.classList.remove('open');
+  };
+
+  btn?.addEventListener('click', () => {
+    const open = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!open));
+    header?.classList.toggle('open', !open);
+  });
+  list?.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('a')) close();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close();
+  });
+
+  const onScroll = () => header?.classList.toggle('scrolled', window.scrollY > 8);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom: 1px solid transparent;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+  }
+  .site-header.scrolled,
+  .site-header.open {
+    background: rgb(11 18 32 / 0.86);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom-color: var(--line);
+  }
+
+  .site-header.open {
+    background: var(--bg);
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    height: var(--header-h);
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .brand-prompt,
+  .brand-cursor {
+    color: var(--green);
+  }
+  .brand-cursor {
+    margin-left: -0.35rem;
+  }
+
+  .nav {
+    margin-left: auto;
+  }
+  .nav-links {
+    display: flex;
+    gap: 0.25rem;
+    list-style: none;
+  }
+  .nav-links a {
+    display: block;
+    padding: 0.5rem 0.7rem;
+    border-radius: 6px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+  .nav-links a:hover {
+    color: var(--text);
+    background: var(--surface);
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .lang {
+    display: flex;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    padding: 3px;
+  }
+  .lang a {
+    padding: 0.3rem 0.55rem;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    font-weight: 650;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+    text-decoration: none;
+  }
+  .lang a[aria-current='true'] {
+    background: var(--raised);
+    color: var(--text);
+  }
+  .lang a:not([aria-current='true']):hover {
+    color: var(--green);
+  }
+
+  .btn-sm {
+    min-height: 36px;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.9rem;
+  }
+
+  .menu-btn {
+    display: none;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid var(--line-strong);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  @media (max-width: 900px) {
+    .menu-btn {
+      display: grid;
+    }
+    .nav {
+      position: absolute;
+      inset: var(--header-h) 0 auto 0;
+      margin: 0;
+    }
+    .nav-links {
+      display: none;
+      flex-direction: column;
+      gap: 0;
+      padding: 0.5rem var(--gutter) 1rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+      box-shadow: 0 24px 40px -12px rgb(0 0 0 / 0.6);
+    }
+    .site-header.open .nav-links {
+      display: flex;
+    }
+    .nav-links a {
+      padding: 0.85rem 0;
+      font-size: 1.05rem;
+      border-radius: 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-links li:last-child a {
+      border-bottom: 0;
+    }
+    .nav-links a:hover {
+      background: transparent;
+    }
+    .actions {
+      margin-left: auto;
+    }
+  }
+  @media (max-width: 400px) {
+    .cv {
+      display: none;
+    }
+  }
+</style>

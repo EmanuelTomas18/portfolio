@@ -1,0 +1,159 @@
+---
+import Avatar from './Avatar.astro';
+import Notebook from './Notebook.astro';
+import { site } from '../data/site';
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const [first, ...rest] = site.name.split(' ');
+---
+
+<section class="hero">
+  <div class="wrap grid">
+    <div class="intro">
+      <Avatar size={84} />
+      <h1>
+        <span>{first} {rest.slice(0, -1).join(' ')}</span>
+        <span>{rest.at(-1)}</span>
+      </h1>
+      <p class="role">{t('hero.role')}</p>
+      <p class="pitch">{t('hero.pitch')}</p>
+
+      <div class="ctas">
+        <a class="btn btn-primary" href={site.cv[lang]} download>
+          <svg viewBox="0 0 24 24" aria-hidden="true"
+            ><path
+              d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path></svg
+          >
+          {t('hero.cv')}
+        </a>
+        <a class="btn" href="#contact">{t('hero.contact')}</a>
+      </div>
+
+      <p class="where">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"
+          ><path
+            d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"></path><circle cx="12" cy="10" r="2.3" fill="currentColor"></circle></svg
+        >
+        <span>{site.location[lang]}.</span>
+        <span>{t('hero.relocate')}.</span>
+      </p>
+    </div>
+
+    <div class="cell">
+      <Notebook lang={lang} />
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    padding-block: clamp(2.5rem, 7vw, 6rem) clamp(4rem, 9vw, 7rem);
+    isolation: isolate;
+    overflow-x: clip;
+  }
+  /* grilla de puntos tenue, como papel cuadriculado */
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: calc(var(--header-h) * -1) 0 0 0;
+    z-index: -1;
+    background-image: radial-gradient(rgb(151 166 194 / 0.16) 1px, transparent 1.4px);
+    background-size: 26px 26px;
+    mask-image: radial-gradient(ellipse 80% 70% at 70% 35%, #000 20%, transparent 75%);
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    width: 520px;
+    height: 520px;
+    right: 6%;
+    top: 4%;
+    background: radial-gradient(circle, rgb(51 229 146 / 0.13), transparent 65%);
+    pointer-events: none;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    gap: clamp(2.5rem, 5vw, 4.5rem);
+    align-items: center;
+  }
+
+  .intro {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  h1 {
+    margin-top: 1.6rem;
+    font-size: var(--step-4);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 0.98;
+  }
+  h1 span {
+    display: block;
+  }
+
+  .role {
+    margin-top: 1.4rem;
+    font-size: var(--step-2);
+    font-weight: 650;
+    color: var(--green);
+    letter-spacing: -0.01em;
+  }
+  .pitch {
+    margin-top: 0.75rem;
+    max-width: 46ch;
+    font-size: var(--step-1);
+    color: var(--muted);
+  }
+
+  .ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  .where {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.5rem;
+    margin-top: 1.6rem;
+    font-size: var(--step--1);
+    color: var(--faint);
+  }
+  .where svg {
+    color: var(--green);
+  }
+
+  @media (max-width: 900px) {
+    .grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .hero::after {
+      width: 360px;
+      height: 360px;
+      right: -20%;
+      top: 45%;
+    }
+  }
+</style>

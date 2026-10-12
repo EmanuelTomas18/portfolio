@@ -1,0 +1,126 @@
+---
+import { getCollection, render } from 'astro:content';
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const entries = (await getCollection('projects', ({ id }) => id.startsWith(`${lang}/`))).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const projects = await Promise.all(entries.map(async (p) => ({ ...p, Content: (await render(p)).Content })));
+---
+
+<section id="projects" class="section">
+  <div class="wrap">
+    <h2 class="section-title">{t('projects.title')}</h2>
+    <p class="lead">{t('projects.lead')}</p>
+
+    <ul class="grid">
+      {
+        projects.map(({ data, Content }) => (
+          <li class="card">
+            <div class="meta">
+              <span>{data.company}</span>
+              <span class="year">{data.year}</span>
+            </div>
+            <h3>{data.title}</h3>
+            <p class="role">{data.role}</p>
+            <div class="desc">
+              <Content />
+            </div>
+            <ul class="tags" aria-label="Tags">
+              {data.tags.map((tag) => (
+                <li class="chip">{tag}</li>
+              ))}
+            </ul>
+            {data.link && (
+              <a class="link" href={data.link} target="_blank" rel="noopener">
+                {data.link.replace(/^https?:\/\//, '')}
+              </a>
+            )}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    margin-top: 2.5rem;
+    list-style: none;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    padding: clamp(1.4rem, 3vw, 2rem);
+    background: var(--bg);
+    transition: background-color 0.2s ease;
+  }
+  .card:hover {
+    background: var(--surface);
+  }
+
+  .meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: var(--step--1);
+    color: var(--faint);
+  }
+  .year {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  h3 {
+    font-size: var(--step-2);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+  .role {
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--green);
+  }
+  .desc {
+    color: var(--muted);
+    max-width: 60ch;
+  }
+  .desc :global(p + p) {
+    margin-top: 0.75rem;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: auto;
+    padding-top: 0.6rem;
+    list-style: none;
+  }
+  .link {
+    color: var(--green);
+    font-size: var(--step--1);
+    font-weight: 600;
+  }
+
+  @media (max-width: 760px) {
+    .grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

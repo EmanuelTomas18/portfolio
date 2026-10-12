@@ -1,0 +1,85 @@
+---
+import { education } from '../data/education';
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section id="education" class="section">
+  <div class="wrap">
+    <h2 class="section-title">{t('edu.title')}</h2>
+    <ul class="list">
+      {
+        education.map((e) => (
+          <li>
+            <div class="head">
+              <h3>{e.title[lang]}</h3>
+              <p class="school">{e.school}</p>
+            </div>
+            <p class="period">{e.period[lang]}</p>
+            {e.detail && <p class="detail">{e.detail[lang]}</p>}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .list {
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+  li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'head period'
+      'detail detail';
+    gap: 0.5rem 2rem;
+    padding-block: 1.5rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .head {
+    grid-area: head;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.75rem;
+  }
+  h3 {
+    font-size: var(--step-1);
+    font-weight: 700;
+  }
+  .school {
+    color: var(--green);
+    font-weight: 600;
+  }
+  .period {
+    grid-area: period;
+    color: var(--faint);
+    font-size: var(--step--1);
+    white-space: nowrap;
+    padding-top: 0.15rem;
+  }
+  .detail {
+    grid-area: detail;
+    color: var(--muted);
+    max-width: 75ch;
+  }
+
+  @media (max-width: 600px) {
+    li {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas:
+        'head'
+        'period'
+        'detail';
+      gap: 0.35rem;
+    }
+  }
+</style>

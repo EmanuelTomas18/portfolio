@@ -1,0 +1,96 @@
+---
+import { site, yearsSince } from '../data/site';
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const facts = [
+  { label: t('about.facts.tech'), value: `${yearsSince(site.techSince)}+ ${t('about.facts.years')}` },
+  { label: t('about.facts.data'), value: `${yearsSince(site.dataSince)}+ ${t('about.facts.years')}` },
+  { label: t('about.facts.base'), value: site.location[lang] },
+  { label: t('about.facts.open'), value: t('about.facts.openValue') },
+];
+---
+
+<section id="about" class="section">
+  <div class="wrap">
+    <h2 class="section-title">{t('about.title')}</h2>
+    <div class="grid">
+      <div class="text">
+        <p>{t('about.p1')}</p>
+        <p>{t('about.p2')}</p>
+        <p>{t('about.p3')}</p>
+      </div>
+      <dl class="facts">
+        {
+          facts.map((f) => (
+            <div>
+              <dt>{f.label}</dt>
+              <dd>{f.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </div>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: start;
+  }
+  .text {
+    display: grid;
+    gap: 1.15rem;
+    max-width: 64ch;
+    font-size: var(--step-1);
+    color: var(--muted);
+  }
+  .text p:first-child {
+    color: var(--text);
+    font-size: var(--step-2);
+    line-height: 1.45;
+    font-weight: 500;
+  }
+
+  .facts {
+    margin: 0;
+    display: grid;
+    border-top: 1px solid var(--line);
+  }
+  .facts div {
+    display: grid;
+    grid-template-columns: 9rem 1fr;
+    gap: 1rem;
+    padding-block: 0.95rem;
+    border-bottom: 1px solid var(--line);
+  }
+  dt {
+    color: var(--faint);
+    font-size: var(--step--1);
+    padding-top: 0.15rem;
+  }
+  dd {
+    margin: 0;
+    font-weight: 600;
+  }
+
+  @media (max-width: 900px) {
+    .grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (max-width: 420px) {
+    .facts div {
+      grid-template-columns: 1fr;
+      gap: 0.15rem;
+    }
+  }
+</style>

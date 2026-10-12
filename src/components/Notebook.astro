@@ -1,0 +1,290 @@
+---
+/**
+ * Celda de notebook del inicio. Al cargar la página se "ejecuta" una vez,
+ * y cada clic en Ejecutar muestra otro problema resuelto (notebookOutputs en src/i18n/ui.ts).
+ */
+import { notebookOutputs, useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const outputs = notebookOutputs[lang];
+
+type Tok = [cls: '' | 'c' | 'k' | 's' | 'm' | 'com' | 'p', text: string];
+
+const words =
+  lang === 'es'
+    ? {
+        name: 'nombre',
+        role: 'rol',
+        roleVal: '"Data Scientist Sr @ AB InBev"',
+        passions: 'pasiones',
+        passionsVal: ['"IA"', '"problemas difíciles"'],
+        comment: '# lo que hago todos los días',
+        solve: 'resolver',
+        problem: 'problema_complejo',
+      }
+    : {
+        name: 'name',
+        role: 'role',
+        roleVal: '"Sr Data Scientist @ AB InBev"',
+        passions: 'passions',
+        passionsVal: ['"AI"', '"hard problems"'],
+        comment: '# what I do every day',
+        solve: 'solve',
+        problem: 'hard_problem',
+      };
+
+const lines: Tok[][] = [
+  [['', 'ema '], ['p', '= '], ['c', 'DataScientist'], ['p', '(']],
+  [['', '    '], ['k', words.name], ['p', '='], ['s', '"Sergio Emanuel Tomas"'], ['p', ',']],
+  [['', '    '], ['k', words.role], ['p', '='], ['s', words.roleVal], ['p', ',']],
+  [['', '    '], ['k', 'stack'], ['p', '=['], ['s', '"Python"'], ['p', ', '], ['s', '"PySpark"'], ['p', ',']],
+  [['', '           '], ['s', '"Databricks"'], ['p', ', '], ['s', '"SQL"'], ['p', '],']],
+  [['', '    '], ['k', words.passions], ['p', '=['], ['s', words.passionsVal[0]], ['p', ', '], ['s', words.passionsVal[1]], ['p', '],']],
+  [['p', ')']],
+  [],
+  [['com', words.comment]],
+  [['', 'ema'], ['p', '.'], ['m', words.solve], ['p', '('], ['', words.problem], ['p', ')']],
+];
+---
+
+<figure class="nb" data-outputs={JSON.stringify(outputs)}>
+  <div class="nb-bar">
+    <span class="nb-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span class="nb-cmd">Cmd <span data-count>1</span></span>
+    <span class="nb-lang">Python</span>
+    <button type="button" class="nb-run" data-label={t('nb.run')} data-running={t('nb.running')}>
+      <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M4 2.5v11l9-5.5z" fill="currentColor"></path></svg>
+      <span data-run-label>{t('nb.run')}</span>
+    </button>
+  </div>
+
+  <pre class="nb-code" tabindex="0" aria-label="Python"><code>{
+    lines.map((line) => (
+      <span class="ln">{line.length ? line.map(([cls, text]) => (cls ? <span class={cls}>{text}</span> : text)) : ' '}</span>
+    ))
+  }</code></pre>
+
+  <div class="nb-out">
+    <span class="nb-progress" aria-hidden="true"></span>
+    <span class="nb-prompt">Out[<span data-out-count>1</span>]:</span>
+    <output class="nb-result" data-result aria-live="polite">
+      <span class="ok" aria-hidden="true">✓</span>
+      <span data-text>{outputs[0]}</span>
+    </output>
+  </div>
+
+  <figcaption class="nb-hint">{t('nb.hint')}</figcaption>
+</figure>
+
+<script>
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.querySelectorAll<HTMLElement>('.nb').forEach((nb) => {
+    const outputs: string[] = JSON.parse(nb.dataset.outputs ?? '[]');
+    const btn = nb.querySelector<HTMLButtonElement>('.nb-run')!;
+    const label = nb.querySelector<HTMLElement>('[data-run-label]')!;
+    const text = nb.querySelector<HTMLElement>('[data-text]')!;
+    const count = nb.querySelector<HTMLElement>('[data-count]')!;
+    const outCount = nb.querySelector<HTMLElement>('[data-out-count]')!;
+    let i = 0;
+    let runs = 1;
+
+    const run = (advance: boolean) => {
+      if (nb.classList.contains('running')) return;
+      if (advance) i = (i + 1) % outputs.length;
+      runs += advance ? 1 : 0;
+      nb.classList.add('running');
+      btn.disabled = true;
+      label.textContent = btn.dataset.running ?? '';
+      count.textContent = String(runs);
+
+      window.setTimeout(
+        () => {
+          text.textContent = outputs[i];
+          outCount.textContent = String(runs);
+          nb.classList.remove('running');
+          btn.disabled = false;
+          label.textContent = btn.dataset.label ?? '';
+        },
+        reduce ? 0 : 750,
+      );
+    };
+
+    btn.addEventListener('click', () => run(true));
+    // Una única ejecución automática al cargar la página.
+    if (!reduce) window.setTimeout(() => run(false), 450);
+  });
+</script>
+
+<style>
+  .nb {
+    margin: 0;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 30px 80px -40px rgb(51 229 146 / 0.25);
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+  }
+
+  .nb-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.55rem 0.6rem 0.55rem 0.9rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--raised);
+    color: var(--faint);
+    font-size: 0.78rem;
+  }
+  .nb-dots {
+    display: flex;
+    gap: 6px;
+  }
+  .nb-dots i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--line-strong);
+  }
+  .nb-lang {
+    margin-left: auto;
+  }
+  .nb-run {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 32px;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid var(--green);
+    border-radius: 6px;
+    background: var(--green-soft);
+    color: var(--green);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .nb-run:hover:not(:disabled) {
+    background: var(--green);
+    color: var(--green-ink);
+  }
+  .nb-run:disabled {
+    cursor: progress;
+    opacity: 0.75;
+  }
+
+  .nb-code {
+    margin: 0;
+    padding: 1.1rem 1.1rem 1.2rem 0;
+    overflow-x: auto;
+    line-height: 1.7;
+    color: var(--text);
+    counter-reset: ln;
+  }
+  .nb-code code {
+    display: block;
+    min-width: max-content;
+  }
+  .ln {
+    display: block;
+    white-space: pre;
+  }
+  .ln::before {
+    counter-increment: ln;
+    content: counter(ln);
+    display: inline-block;
+    width: 2.6rem;
+    padding-right: 1rem;
+    text-align: right;
+    color: var(--line-strong);
+    user-select: none;
+  }
+  .c {
+    color: var(--syn-fn);
+  }
+  .m {
+    color: var(--syn-fn);
+  }
+  .k {
+    color: var(--syn-kw);
+  }
+  .s {
+    color: var(--syn-str);
+  }
+  .com {
+    color: var(--syn-com);
+    font-style: italic;
+  }
+  .p {
+    color: var(--muted);
+  }
+
+  .nb-out {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 0.9rem 1.1rem 1rem;
+    border-top: 1px dashed var(--line-strong);
+    min-height: 3.4rem;
+  }
+  .nb-prompt {
+    color: var(--faint);
+    flex: none;
+  }
+  .nb-result {
+    display: flex;
+    gap: 0.5rem;
+    color: var(--text);
+    transition: opacity 0.2s ease;
+  }
+  .ok {
+    color: var(--green);
+    font-weight: 700;
+  }
+  .nb-progress {
+    position: absolute;
+    top: -1px;
+    left: 0;
+    height: 2px;
+    width: 0;
+    background: var(--green);
+  }
+  .nb.running .nb-result {
+    opacity: 0;
+  }
+  .nb.running .nb-progress {
+    animation: progress 0.75s ease-out forwards;
+  }
+  @keyframes progress {
+    to {
+      width: 100%;
+    }
+  }
+
+  .nb-hint {
+    padding: 0.6rem 1.1rem;
+    border-top: 1px solid var(--line);
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    color: var(--faint);
+  }
+
+  @media (max-width: 520px) {
+    .nb {
+      font-size: 0.76rem;
+    }
+    .ln::before {
+      width: 2rem;
+      padding-right: 0.75rem;
+    }
+    .nb-dots {
+      display: none;
+    }
+  }
+</style>

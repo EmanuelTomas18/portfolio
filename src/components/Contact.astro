@@ -1,0 +1,154 @@
+---
+import { site } from '../data/site';
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section id="contact" class="section contact">
+  <div class="wrap">
+    <h2 class="section-title">{t('contact.title')}</h2>
+    <p class="lead">{t('contact.lead')}</p>
+
+    <div class="mail">
+      <a class="address" href={`mailto:${site.email}`}>{site.email}</a>
+      <button
+        class="btn copy"
+        type="button"
+        data-email={site.email}
+        data-label={t('contact.copy')}
+        data-done={t('contact.copied')}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true"
+          ><rect x="8" y="8" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"
+          ></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" fill="none" stroke="currentColor" stroke-width="2"
+          ></path></svg
+        >
+        <span data-copy-label>{t('contact.copy')}</span>
+      </button>
+      <span class="sr-only" aria-live="polite" data-copy-status></span>
+    </div>
+
+    <ul class="links">
+      <li>
+        <a class="btn" href={site.linkedin} target="_blank" rel="noopener me">
+          <svg viewBox="0 0 24 24" aria-hidden="true"
+            ><path
+              fill="currentColor"
+              d="M6.94 8.5H3.56V20h3.38V8.5ZM5.25 3A1.97 1.97 0 1 0 5.3 6.94 1.97 1.97 0 0 0 5.25 3ZM20.44 13.4c0-3.1-1.65-4.55-3.86-4.55a3.34 3.34 0 0 0-3.02 1.66V8.5h-3.37c.04.95 0 11.5 0 11.5h3.37v-6.42c0-.34.03-.69.13-.93a1.84 1.84 0 0 1 1.73-1.23c1.22 0 1.71.93 1.71 2.29V20h3.37l-.06-6.6Z"
+            ></path></svg
+          >
+          {t('contact.linkedin')}
+        </a>
+      </li>
+      {
+        site.showPhone && (
+          <li>
+            <a class="btn" href={site.whatsapp} target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M12.04 2a9.9 9.9 0 0 0-8.5 14.98L2 22l5.17-1.5A9.93 9.93 0 1 0 12.04 2Zm0 18.13a8.2 8.2 0 0 1-4.2-1.15l-.3-.18-3.07.89.9-2.99-.2-.31a8.2 8.2 0 1 1 6.87 3.74Zm4.5-6.14c-.25-.12-1.46-.72-1.69-.8-.23-.08-.39-.12-.55.12-.17.25-.64.8-.78.97-.14.16-.29.18-.53.06a6.72 6.72 0 0 1-3.37-2.94c-.25-.44.25-.41.73-1.36.08-.16.04-.3-.02-.43-.06-.12-.55-1.33-.76-1.82-.2-.48-.4-.41-.55-.42h-.47a.9.9 0 0 0-.65.3 2.74 2.74 0 0 0-.86 2.04 4.77 4.77 0 0 0 1 2.53 10.9 10.9 0 0 0 4.18 3.7c1.56.67 2.17.73 2.95.61.47-.07 1.46-.6 1.66-1.17.2-.58.2-1.07.15-1.17-.06-.1-.22-.17-.47-.29Z"
+                />
+              </svg>
+              {t('contact.whatsapp')}
+              <span class="phone">{site.phoneDisplay}</span>
+            </a>
+          </li>
+        )
+      }
+      <li>
+        <a class="btn" href={site.cv[lang]} download>
+          <svg viewBox="0 0 24 24" aria-hidden="true"
+            ><path
+              d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path></svg
+          >
+          {t('contact.cv')}
+        </a>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.copy').forEach((btn) => {
+    const label = btn.querySelector<HTMLElement>('[data-copy-label]')!;
+    const status = btn.parentElement?.querySelector<HTMLElement>('[data-copy-status]');
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.email ?? '');
+        label.textContent = btn.dataset.done ?? '';
+        if (status) status.textContent = btn.dataset.done ?? '';
+        btn.classList.add('done');
+        window.setTimeout(() => {
+          label.textContent = btn.dataset.label ?? '';
+          btn.classList.remove('done');
+          if (status) status.textContent = '';
+        }, 2200);
+      } catch {
+        window.location.href = `mailto:${btn.dataset.email}`;
+      }
+    });
+  });
+</script>
+
+<style>
+  .contact {
+    padding-bottom: clamp(4rem, 8vw, 6rem);
+  }
+  .mail {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    margin-top: 2.25rem;
+  }
+  .address {
+    font-size: clamp(1.35rem, 0.6rem + 3.4vw, 3rem);
+    font-weight: 750;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    background-image: linear-gradient(var(--green), var(--green));
+    background-size: 0% 2px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition:
+      background-size 0.3s ease,
+      color 0.2s ease;
+  }
+  .address:hover {
+    color: var(--green);
+    background-size: 100% 2px;
+  }
+  .copy.done {
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    list-style: none;
+  }
+  .phone {
+    color: var(--faint);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .btn:hover .phone {
+    color: inherit;
+  }
+</style>

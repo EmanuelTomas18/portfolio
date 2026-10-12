@@ -1,0 +1,168 @@
+---
+import { experience } from '../data/experience';
+import { formatMonth, useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section id="experience" class="section">
+  <div class="wrap">
+    <h2 class="section-title">{t('exp.title')}</h2>
+    <ol class="timeline">
+      {
+        experience.map((job) => (
+          <li class:list={['job', { current: !job.end }]}>
+            <p class="when">
+              <time datetime={job.start}>{formatMonth(job.start, lang)}</time>
+              <span aria-hidden="true"> – </span>
+              {job.end ? <time datetime={job.end}>{formatMonth(job.end, lang)}</time> : <span>{t('exp.present')}</span>}
+            </p>
+            <div class="body">
+              <h3>{job.role[lang]}</h3>
+              <p class="company">
+                {job.company}
+                {job.note && <span class="note">{job.note[lang]}</span>}
+              </p>
+              <ul class="highlights">
+                {job.highlights[lang].map((h) => (
+                  <li>{h}</li>
+                ))}
+              </ul>
+              <ul class="stack" aria-label="Stack">
+                {job.stack.map((s) => (
+                  <li class="chip">{s}</li>
+                ))}
+              </ul>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .job {
+    position: relative;
+    display: grid;
+    grid-template-columns: 11rem minmax(0, 1fr);
+    gap: 2.5rem;
+  }
+
+  /* línea y nodo de la línea de tiempo */
+  .body {
+    position: relative;
+    padding-left: 2rem;
+    border-left: 1px solid var(--line-strong);
+    padding-bottom: 3rem;
+  }
+  .job:last-child .body {
+    padding-bottom: 0.25rem;
+  }
+  .body::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 0.45rem;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--line-strong);
+  }
+  .current .body::before {
+    border-color: var(--green);
+    background: var(--green);
+    box-shadow: 0 0 0 5px var(--green-soft);
+  }
+
+  .when {
+    padding-top: 0.2rem;
+    color: var(--muted);
+    font-size: var(--step--1);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  .current .when {
+    color: var(--green);
+  }
+
+  h3 {
+    font-size: var(--step-2);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .company {
+    margin-top: 0.3rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .note {
+    margin-left: 0.5rem;
+    font-weight: 400;
+    color: var(--faint);
+  }
+
+  .highlights {
+    margin-top: 1rem;
+    display: grid;
+    gap: 0.6rem;
+    list-style: none;
+    max-width: 72ch;
+    color: var(--muted);
+  }
+  .highlights li {
+    position: relative;
+    padding-left: 1.25rem;
+  }
+  .highlights li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.75em;
+    width: 8px;
+    height: 2px;
+    background: var(--green);
+  }
+
+  .stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 1.25rem;
+    list-style: none;
+  }
+
+  @media (max-width: 720px) {
+    .job {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+    }
+    .when {
+      text-align: left;
+      padding: 0 0 0.4rem 2rem;
+      border-left: 1px solid var(--line-strong);
+    }
+    .job:first-child .when {
+      border-left-color: transparent;
+    }
+    .body {
+      padding-bottom: 2.75rem;
+    }
+    .job:last-child .body {
+      padding-bottom: 0;
+    }
+    .body::before {
+      top: -1.65rem;
+    }
+  }
+</style>
